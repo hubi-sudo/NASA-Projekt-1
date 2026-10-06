@@ -1,0 +1,5 @@
+LC08/
+.ipynb_checkpoints/
+__pycache__/
+._*
+.DS_Store
