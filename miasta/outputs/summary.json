@@ -1,0 +1,232 @@
+{
+  "product": "LC08_L1TP_188025_20130807_20170503_01_T1",
+  "date": "2013-08-07",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "tiles": 1470,
+  "order": [
+    "RGB",
+    "CIR",
+    "SWIR",
+    "NDBI",
+    "IBI",
+    "MNDWI"
+  ],
+  "regions": [
+    {
+      "id": "krakow",
+      "name": "Kraków",
+      "extent": [
+        [
+          49.9293189483458,
+          19.732345091275867
+        ],
+        [
+          50.165131533807916,
+          20.2750638304039
+        ]
+      ],
+      "focus": [
+        [
+          49.9676668,
+          19.7922355
+        ],
+        [
+          50.1260797,
+          20.2173455
+        ]
+      ],
+      "stats": {
+        "area_km2": 326.6,
+        "valid_pct": 99.99,
+        "indices": {
+          "NDBI": {
+            "mean": -0.1885,
+            "median": -0.1907,
+            "positive_pct": 9.01
+          },
+          "IBI": {
+            "mean": -0.1418,
+            "median": -0.1426,
+            "positive_pct": 12.35
+          },
+          "MNDWI": {
+            "mean": -0.4416,
+            "median": -0.4772,
+            "positive_pct": 1.26
+          }
+        },
+        "corr_ndvi_ndbi": -0.84
+      }
+    },
+    {
+      "id": "gzm",
+      "name": "Katowice / GZM",
+      "extent": [
+        [
+          50.092209413517644,
+          18.49526859629522
+        ],
+        [
+          50.44932481953069,
+          19.36579375491372
+        ]
+      ],
+      "focus": [
+        [
+          50.1300628,
+          18.5429915
+        ],
+        [
+          50.4137092,
+          19.3179524
+        ]
+      ],
+      "stats": {
+        "area_km2": 689.2,
+        "valid_pct": 98.58,
+        "indices": {
+          "NDBI": {
+            "mean": -0.1967,
+            "median": -0.1998,
+            "positive_pct": 8.75
+          },
+          "IBI": {
+            "mean": -0.1503,
+            "median": -0.1531,
+            "positive_pct": 11.81
+          },
+          "MNDWI": {
+            "mean": -0.4321,
+            "median": -0.4537,
+            "positive_pct": 0.59
+          }
+        },
+        "corr_ndvi_ndbi": -0.905
+      }
+    },
+    {
+      "id": "kielce",
+      "name": "Kielce",
+      "extent": [
+        [
+          50.74749410283044,
+          20.438206155230812
+        ],
+        [
+          50.96069734997196,
+          20.792410859234668
+        ]
+      ],
+      "focus": [
+        [
+          50.7932894,
+          20.5105231
+        ],
+        [
+          50.9150826,
+          20.7206279
+        ]
+      ],
+      "stats": {
+        "area_km2": 109.5,
+        "valid_pct": 100.0,
+        "indices": {
+          "NDBI": {
+            "mean": -0.1773,
+            "median": -0.1539,
+            "positive_pct": 13.36
+          },
+          "IBI": {
+            "mean": -0.1325,
+            "median": -0.1103,
+            "positive_pct": 18.21
+          },
+          "MNDWI": {
+            "mean": -0.4556,
+            "median": -0.4752,
+            "positive_pct": 0.2
+          }
+        },
+        "corr_ndvi_ndbi": -0.898
+      }
+    },
+    {
+      "id": "czestochowa",
+      "name": "Częstochowa",
+      "extent": [
+        [
+          50.68726429383205,
+          18.93344051013413
+        ],
+        [
+          50.93151779840947,
+          19.30899090830981
+        ]
+      ],
+      "focus": [
+        [
+          50.7347282,
+          19.0112543
+        ],
+        [
+          50.8845414,
+          19.2331843
+        ]
+      ],
+      "stats": {
+        "area_km2": 159.7,
+        "valid_pct": 99.6,
+        "indices": {
+          "NDBI": {
+            "mean": -0.1773,
+            "median": -0.1752,
+            "positive_pct": 6.08
+          },
+          "IBI": {
+            "mean": -0.1321,
+            "median": -0.1301,
+            "positive_pct": 9.02
+          },
+          "MNDWI": {
+            "mean": -0.4591,
+            "median": -0.4865,
+            "positive_pct": 0.27
+          }
+        },
+        "corr_ndvi_ndbi": -0.874
+      }
+    }
+  ],
+  "export_seconds": 53.4,
+  "compare": {
+    "radius_km": 1.5,
+    "n": {
+      "centra": 18099,
+      "pola": 46213
+    },
+    "indices": {
+      "NDBI": {
+        "median": {
+          "centra": -0.001,
+          "pola": 0.059
+        },
+        "overlap_pct": 57.0
+      },
+      "IBI": {
+        "median": {
+          "centra": 0.012,
+          "pola": 0.069
+        },
+        "overlap_pct": 51.5
+      },
+      "MNDWI": {
+        "median": {
+          "centra": -0.255,
+          "pola": -0.392
+        },
+        "overlap_pct": 42.2
+      }
+    }
+  }
+}
