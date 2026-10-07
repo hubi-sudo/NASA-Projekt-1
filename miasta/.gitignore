@@ -1,0 +1,7 @@
+.venv*/
+__pycache__/
+outputs/rasters/
+site.tar.gz
+.DS_Store
+._*
+Thumbs.db
