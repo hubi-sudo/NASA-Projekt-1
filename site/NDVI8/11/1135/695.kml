@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>11/1135/695.kml</name>
+    <description></description>
+    <Style>
+      <ListStyle id="hideChildren">
+        <listItemType>checkHideChildren</listItemType>
+      </ListStyle>
+    </Style>
+    <Region>
+      <LatLonAltBox>
+        <north>49.95121990866203</north>
+        <south>49.83798245308484</south>
+        <east>19.68750000000000</east>
+        <west>19.51171875000000</west>
+      </LatLonAltBox>
+      <Lod>
+        <minLodPixels>128</minLodPixels>
+        <maxLodPixels>2048</maxLodPixels>
+      </Lod>
+    </Region>
+    <GroundOverlay>
+      <drawOrder>22</drawOrder>
+      <Icon>
+        <href>695.png</href>
+      </Icon>
+      <LatLonBox>
+        <north>49.95121990866203</north>
+        <south>49.83798245308484</south>
+        <east>19.68750000000000</east>
+        <west>19.51171875000000</west>
+      </LatLonBox>
+    </GroundOverlay>
+    <NetworkLink>
+      <name>12/2271/1390.png</name>
+      <Region>
+        <LatLonAltBox>
+          <north>49.95121990866203</north>
+          <south>49.89463439573419</south>
+          <east>19.68750000000000</east>
+          <west>19.59960937500000</west>
+        </LatLonAltBox>
+        <Lod>
+          <minLodPixels>128</minLodPixels>
+          <maxLodPixels>-1</maxLodPixels>
+        </Lod>
+      </Region>
+      <Link>
+        <href>../../12/2271/1390.kml</href>
+        <viewRefreshMode>onRegion</viewRefreshMode>
+        <viewFormat/>
+      </Link>
+    </NetworkLink>
+</Document>
+</kml>
