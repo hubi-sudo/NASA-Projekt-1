@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projekt NASA · Landsat 8</title>
+  <meta name="description" content="Wskaźniki NDBI, IBI i MNDWI z Landsat 8 dla Krakowa, GZM, Kielc i Częstochowy.">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    window.showMapError = function (msg) {
+      if (window.mapReady || document.getElementById('map-error')) return;
+      var box = document.createElement('div');
+      box.id = 'map-error';
+      box.innerHTML = '<b>Mapa się nie wczytała.</b><br>Odśwież stronę (Ctrl+F5) albo otwórz ją w aktualnym Chrome, Firefoksie, Edge lub Safari.' +
+        '<small>Błąd: ' + String(msg).replace(/</g, '&lt;') + '<br>' + navigator.userAgent.replace(/</g, '&lt;') + '</small>';
+      (document.getElementById('map') || document.body).appendChild(box);
+    };
+    window.addEventListener('error', function (e) {
+      var t = e.target;
+      if (t && t.tagName === 'SCRIPT') window.showMapError('nie wczytano pliku ' + t.getAttribute('src'));
+      else if (e.message) window.showMapError(e.message);
+    }, true);
+    setTimeout(function () { window.showMapError('przekroczony czas ładowania (sieć AGH / VPN?)'); }, 15000);
+  </script>
+  <script src="vendor/leaflet.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div id="map" aria-label="Mapa"><noscript><div id="map-error"><b>Mapa wymaga włączonego JavaScriptu.</b></div></noscript></div>
+
+  <aside class="panel">
+    <h1>Projekt NASA</h1>
+    <p class="lead">Wskaźniki spektralne z Landsat 8 (<span id="date">7 sierpnia 2013</span>) dla Krakowa, Katowic i GZM, Kielc oraz Częstochowy.</p>
+
+    <section>
+      <h2>Obszar</h2>
+      <div class="chips" id="regions"></div>
+    </section>
+
+    <section>
+      <h2>Porównanie</h2>
+      <div class="row">
+        <label for="left-select">Lewa strona</label>
+        <select id="left-select"></select>
+        <button type="button" class="icon-btn" id="swap" title="Zamień strony">⇄</button>
+      </div>
+      <p class="small muted">Prawa strona to warstwa wybrana na pasku pod mapą. Pionowy suwak na mapie przesuwa granicę między warstwami.</p>
+      <div class="row">
+        <label for="opacity">Krycie</label>
+        <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.9">
+      </div>
+      <div class="row">
+        <label><input type="checkbox" id="show-bounds" checked> granice miast</label>
+      </div>
+    </section>
+
+    <section id="layer-card" aria-live="polite"></section>
+
+    <section>
+      <h2 id="stats-title">Statystyki</h2>
+      <div id="stats"></div>
+    </section>
+
+    <section>
+      <h2>Wnioski</h2>
+      <ol class="findings">
+        <li>NDBI i NDVI są silnie ujemnie skorelowane (r od −0,84 do −0,91), więc w sierpniu NDBI pokazuje głównie brak roślinności.</li>
+        <li>Pola po żniwach mają wyższy NDBI niż centra miast (mediana ok. +0,06 wobec 0,00). NDBI myli odsłoniętą glebę z zabudową.</li>
+        <li>IBI ma ten sam problem: na polach ok. +0,07, w centrach ok. +0,01.</li>
+        <li>MNDWI lepiej odróżnia zabudowę od gleby (ok. −0,26 w centrach, −0,39 na polach), dlatego warto łączyć kilka wskaźników.</li>
+      </ol>
+    </section>
+
+    <section>
+      <p class="small muted">Dane: Landsat 8 OLI, Collection 1 Surface Reflectance, scena <span id="product">LC08_L1TP_188025_20130807</span> (USGS/NASA), 30 m. Granice miast: © OpenStreetMap.</p>
+    </section>
+  </aside>
+</body>
+</html>
