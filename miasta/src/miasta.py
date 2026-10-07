@@ -17,7 +17,10 @@ from PIL import Image
 from rasterio.enums import Resampling
 from rasterio.features import geometry_mask
 from rasterio.transform import array_bounds, from_bounds
-from rasterio.warp import reproject, transform_bounds, transform_geom
+from rasterio.warp import reproject, transform, transform_bounds, transform_geom
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
 NS = {'e': 'http://espa.cr.usgs.gov/v2'}
@@ -45,6 +48,7 @@ COMPOSITES = {
              'about': 'Kompozycja „urban”: zabudowa fioletowo-różowa, roślinność zielona, gleba brązowa, woda prawie czarna.'},
 }
 LAYER_ORDER = ['RGB', 'CIR', 'SWIR', 'NDBI', 'IBI', 'MNDWI']
+COMPARE_RANGES = {'NDBI': (-0.25, 0.25), 'IBI': (-0.25, 0.25), 'MNDWI': (-0.65, 0.05)}
 
 
 def read_metadata(xml: Path) -> dict:
@@ -165,6 +169,35 @@ def region_stats(reg: dict, ix: dict) -> dict:
             'corr_ndvi_ndbi': round(float(np.corrcoef(ix['NDVI'][m], ix['NDBI'][m])[0, 1]), 3)}
 
 
+def centres_vs_fields(regions: list[dict], results: list[dict], radius_km: float) -> dict:
+    groups = {'centra': [], 'pola': []}
+    for reg, res in zip(regions, results):
+        ix, p = res['ix'], reg['profile']
+        bare = reg['valid'] & (ix['NDVI'] < 0.3) & (ix['MNDWI'] <= 0)
+        rows, cols = np.indices(bare.shape)
+        x, y = p['transform'] * (cols + 0.5, rows + 0.5)
+        near = np.zeros_like(bare)
+        for lon, lat in reg['region']['centres'].values():
+            (cx,), (cy,) = transform('EPSG:4326', p['crs'], [lon], [lat])
+            near |= np.hypot(x - cx, y - cy) < radius_km * 1000
+        groups['centra'].append({k: ix[k][bare & near] for k in COMPARE_RANGES})
+        if reg['region']['fields_outside']:
+            groups['pola'].append({k: ix[k][bare & ~reg['inside']] for k in COMPARE_RANGES})
+    out = {'radius_km': radius_km, 'indices': {},
+           'n': {g: int(sum(len(d['NDBI']) for d in parts)) for g, parts in groups.items()}}
+    for k, (lo, hi) in COMPARE_RANGES.items():
+        dens, med = {}, {}
+        for g, parts in groups.items():
+            v = np.concatenate([d[k] for d in parts])
+            h, _ = np.histogram(np.clip(v, lo, hi), bins=40, range=(lo, hi))
+            dens[g] = h / h.sum()
+            med[g] = round(float(np.median(v)), 3)
+        out['indices'][k] = {'range': [lo, hi], 'median': med,
+                             'overlap_pct': round(float(np.minimum(dens['centra'], dens['pola']).sum() * 100), 1),
+                             **{g: [round(float(d), 5) for d in dens[g]] for g in dens}}
+    return out
+
+
 def tile_ranges(bounds3857, z):
     w, s, e, n = bounds3857
     span = 2 * WEB_RADIUS / 2 ** z
@@ -215,6 +248,39 @@ def write_tiles(stacks: list[dict], names: list[str], site: Path, minzoom: int, 
     return written
 
 
+def make_figures(regions, results, limits, compare, out: Path):
+    out.mkdir(parents=True, exist_ok=True)
+    plt.rcParams.update({'font.size': 10, 'figure.facecolor': 'white'})
+    for reg, res in zip(regions, results):
+        rgb = np.nan_to_num(np.dstack([stretch(reg['reflectance'][b], limits[b]) for b in (4, 3, 2)]), nan=1.0)
+        fig, axs = plt.subplots(2, 2, figsize=(11, 8.6), layout='constrained')
+        for ax, key in zip(axs.flat, ['RGB', 'NDBI', 'IBI', 'MNDWI']):
+            if key == 'RGB':
+                ax.imshow(rgb)
+            else:
+                info = INDICES[key]
+                im = ax.imshow(res['ix'][key], cmap=info['cmap'], norm=TwoSlopeNorm(0.0, *info['range']),
+                               interpolation='nearest')
+                fig.colorbar(im, ax=ax, shrink=.75)
+            ax.contour(reg['inside'], levels=[0.5], colors='k', linewidths=.6)
+            ax.set_title(f"{reg['region']['name']} · {key}")
+            ax.set_axis_off()
+        fig.savefig(out / f"mapa_{reg['region']['id']}.png", dpi=120)
+        plt.close(fig)
+
+    fig, axs = plt.subplots(1, 3, figsize=(13, 3.8), layout='constrained')
+    for ax, (key, d) in zip(axs, compare['indices'].items()):
+        lo, hi = d['range']
+        x = np.linspace(lo, hi, len(d['centra']) + 1)
+        for g, color, label in [('centra', '#b2182b', 'centra miast'), ('pola', '#c9a23a', 'pola poza miastami')]:
+            ax.stairs(d[g], x, fill=True, alpha=.45, color=color, label=label)
+            ax.axvline(d['median'][g], color=color, ls='--', lw=1.2)
+        ax.set(title=f"{key} · wspólna część rozkładów {d['overlap_pct']:.0f}%", xlabel=key, yticks=[])
+    axs[0].legend(frameon=False)
+    fig.savefig(out / 'centra_vs_pola.png', dpi=120)
+    plt.close(fig)
+
+
 def export(output: Path, site: Path, minzoom: int, maxzoom: int) -> dict:
     t0 = time.perf_counter()
     config = json.loads((ROOT / 'data' / 'regions.json').read_text(encoding='utf-8'))
@@ -239,6 +305,7 @@ def export(output: Path, site: Path, minzoom: int, maxzoom: int) -> dict:
             with rasterio.open(raster_dir / f'{name}.tif', 'w', **prof) as dst:
                 dst.write(np.where(np.isfinite(a), a, -9999).astype('float32'), 1)
                 dst.set_band_description(1, name)
+    compare = centres_vs_fields(regions, results, config['centre_radius_km'])
 
     if site.exists():
         shutil.rmtree(site)
@@ -283,8 +350,14 @@ def export(output: Path, site: Path, minzoom: int, maxzoom: int) -> dict:
                'layers': layers, 'order': LAYER_ORDER, 'regions': site_regions}
     (site / 'config.json').write_text(json.dumps(summary, ensure_ascii=False), encoding='utf-8')
 
+    make_figures(regions, results, limits, compare, output / 'figures')
     summary['export_seconds'] = round(time.perf_counter() - t0, 1)
-    return summary
+    report = {k: v for k, v in summary.items() if k not in ('layers', 'available')}
+    report['compare'] = {'radius_km': compare['radius_km'], 'n': compare['n'],
+                         'indices': {k: {'median': d['median'], 'overlap_pct': d['overlap_pct']}
+                                     for k, d in compare['indices'].items()}}
+    (output / 'summary.json').write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding='utf-8')
+    return report
 
 
 def main():
@@ -299,6 +372,9 @@ def main():
         st = r['stats']
         print(f"{r['name']:16s} {st['area_km2']:7.1f} km²  NDBI śr. {st['indices']['NDBI']['mean']:+.3f}  "
               f"IBI śr. {st['indices']['IBI']['mean']:+.3f}  r(NDVI, NDBI) = {st['corr_ndvi_ndbi']:+.2f}")
+    for k, d in report['compare']['indices'].items():
+        print(f"{k:6s} mediana: centra {d['median']['centra']:+.3f}, pola {d['median']['pola']:+.3f}, "
+              f"wspólna część rozkładów {d['overlap_pct']:.0f}%")
     print(f"Kafelki: {report['tiles']}, czas: {report['export_seconds']} s")
     print(f'Podgląd: python -m http.server 8000 --directory {args.site}')
 
