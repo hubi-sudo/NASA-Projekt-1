@@ -1,0 +1,39 @@
+{
+  "scene": "LC08_L1TP_188025_20130807_20170503_01_T1",
+  "centre_radius_km": 1.5,
+  "regions": [
+    {
+      "id": "krakow",
+      "name": "Kraków",
+      "cities": ["Kraków"],
+      "buffer_km": 4,
+      "centres": {"Stare Miasto": [19.9375, 50.0617], "Nowa Huta": [20.01, 50.085], "Podgórze": [19.95, 50.03]},
+      "fields_outside": true
+    },
+    {
+      "id": "gzm",
+      "name": "Katowice / GZM",
+      "cities": ["Katowice", "Sosnowiec", "Chorzów", "Siemianowice Śląskie", "Świętochłowice",
+                 "Ruda Śląska", "Zabrze", "Bytom", "Gliwice"],
+      "buffer_km": 3,
+      "centres": {"Katowice": [19.02, 50.26], "Sosnowiec": [19.13, 50.285], "Gliwice": [18.67, 50.295]},
+      "fields_outside": false
+    },
+    {
+      "id": "kielce",
+      "name": "Kielce",
+      "cities": ["Kielce"],
+      "buffer_km": 5,
+      "centres": {"Kielce": [20.628, 50.870]},
+      "fields_outside": true
+    },
+    {
+      "id": "czestochowa",
+      "name": "Częstochowa",
+      "cities": ["Częstochowa"],
+      "buffer_km": 5,
+      "centres": {"Częstochowa": [19.12, 50.81]},
+      "fields_outside": true
+    }
+  ]
+}
